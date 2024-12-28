@@ -37,13 +37,14 @@ app.use(bodyParser.json())
 
 
 const sendVerificationEmail=async (email,verificationToken)=>{
+    console.log(email)
     // create a nodemailer transport
     const transporter=nodemailer.createTransport({
         // configure the email service
-        service:"gamil",
+        service:"gmail",
         auth:{
             user:"bsvvreddy@gmail.com",
-            pass:"ylfj pooo gyoe tzjg"
+            pass:"ylfjpooogyoetzjg"
         }
     })
 
@@ -53,7 +54,7 @@ const sendVerificationEmail=async (email,verificationToken)=>{
         from:"amazon.com",
         to:email,
         subject:"Email Verification",
-        text:`Please click the folloing link to verify your email:http://localhost:4000/verify/${verificationToken}`
+        text:`Please click the folloing link to verify your email:https://backend-for-myapp.onrender.com/verify/${verificationToken}`
     }
 
     //send the Email
@@ -93,12 +94,16 @@ app.post("/register",async(req,res)=>{
         await newUser.save();
 
 
+
         //send verification email to the user
 
         sendVerificationEmail(newUser.email,newUser.verificationToken)
 
 
-
+        res.status(201).json({
+            message:
+              "Registration successful. Please check your email for verification.",
+          });
         
     } catch (error) {
         console.log("error registering user",error)
@@ -111,21 +116,26 @@ app.post("/register",async(req,res)=>{
 //end point verify the email
 
 app.get("/verify/:token", async (req,res)=>{
+   
 
     try {
         const token = req.params.token
+        console.log(token)
         //Find the user with the given verification token
 
         const user= await User.findOne({verificationToken:token});
+        console.log(user)
         if (!user){
             return res.status(404).json({massage:"Invalid Verification token"})
         }
 
         //mark the user as verified
 
-        User.verified=true,
-        User.verificationToken=undefined
-        await User.save()
+        user.verified=true,
+
+        user.verificationToken=undefined
+        await user.save()
+        console.log(user)
 
         res.status(200).json({massage:"Email verification successfully"})
         
