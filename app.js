@@ -202,10 +202,13 @@ app.post("/login", async (req,res)=>{
 app.post("/addresses", async (req,res)=>{
     try {
         const {userId,address}=req.body
+        console.log(address)
+       
         
         //find the user by using userId
 
-        const user=User.findById(userId)
+        const user=await User.findById(userId)
+        console.log(user)
         if(!user){
             return res.status(404).json({messsage:"user not found"})
         }
