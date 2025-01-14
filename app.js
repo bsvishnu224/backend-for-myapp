@@ -264,8 +264,9 @@ app.post("/orders", async (req, res) => {
             name: item.title,
             quantity: item.quantity,
             price: item.price,
-            iamge: item.image
+            image: item.image
         }))
+        console.log(products)
 
         //create a new order
 
