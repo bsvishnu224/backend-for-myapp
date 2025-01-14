@@ -8,7 +8,8 @@ const { error } = require("console");
 const jwt =require("jsonwebtoken")
 
 const User=require("./models/User")
-const orders=require("./models/Orders")
+
+const Order = require("./models/Orders");
 
 const app=express()
 
@@ -244,5 +245,86 @@ app.get("/addresses/:userId", async (req,res)=>{
         
     } catch (error) {
         res.json(500).json({message:"error retrieveing addresses"})
+    }
+})
+
+//endpiont to store all the orders
+
+app.post("/orders", async (req,res)=>{
+    try {
+        const {userId,cartItems,totalPrice,shippingAddress,paymentMethod}=red.body
+        const user = await User.findById(userId)
+        if (!user){
+            return res.status(404).json({message:"user not found"})
+
+        }
+
+        //create an array of produte objects from the cart Items
+        const products=cartItems.map((item)=>({
+            name:item.name,
+            quantity:item.quantity,
+            price:item.price,
+            iamge:item.image
+        }))
+
+        //create a new order
+
+        const order=new Order({
+            user:userId,
+            products:products,
+            totalPrice:totalPrice,
+            shippingAddress:shippingAddress,
+            paymentMethod:paymentMethod
+        })
+
+        await order.save()
+
+        res.status(200).json({message:"order create successfully"})
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({message:"Error creating orders"})
+    }
+})
+
+
+//get the user profile;
+
+app.get("/profile/:userId",async (req,res)=>{
+    try {
+        const userId=req.params.userId
+
+        const user= await User.findById(userId)
+        if (!user){
+            return res.status(404).json({message:"user not found"})
+
+        }
+
+        res.status(200).json({user})
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({message:"Error retrieving the user profile"})
+    }
+})
+
+
+//get orders 
+
+app.get("/orders/:userId",async (req,res)=>{
+    try {
+        const userId=req.params.userId
+
+        const orders=await Order.find({user:userId}).populate("user");
+
+        if (!orders || orders.length === 0){
+            return res.status(404).json({message:"No orders found for this user"})
+        }
+
+        res.status(200).json({orders})
+        
+    } catch (error) {
+        res.status(500).json({message:"Error"})
+        console.log(error)
+        
     }
 })
