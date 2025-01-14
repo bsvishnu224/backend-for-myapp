@@ -280,7 +280,7 @@ app.post("/orders", async (req, res) => {
 
         await order.save()
 
-        res.status(200).json({ message: "order create successfully" })
+        res.status(200).json({ message: "order create successfully",order })
 
     } catch (error) {
         console.log(error)
